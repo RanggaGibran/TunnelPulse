@@ -6,7 +6,7 @@ See container state, health checks, and local tunnel connectivity in one view. R
 
 ## Run
 
-On a Linux Docker host with cloudflared's readiness endpoint enabled:
+On a Linux Docker host with cloudflared's readiness endpoint enabled, copy `services.example.json` to `services.json`, then:
 
 ```sh
 docker compose up -d --build
@@ -44,3 +44,13 @@ docker run --rm --network host --shm-size=256m tunnelpulse-browser-test
 ```
 
 The browser suite covers source failures, stale data, Swarm task filtering, manual refresh, and desktop/mobile rendering. It does not stop or modify monitored services.
+
+## Service monitoring
+
+Copy `services.example.json` to `services.json` before starting Compose. Map each application to an origin URL, an optional public URL, and an exact Docker container or Swarm service name. Reload configuration by restarting TunnelPulse.
+
+Checks expect HTTP 2xx and do not follow redirects. An Access login redirect is reported as a failed public check, not proof that the application is down. Use read-only health endpoints without credentials or query parameters. URLs are visible in the dashboard.
+
+Service maps combine HTTP results, local connector connectivity, and container state. Diagnosis explains observations and suggests where to investigate; it does not establish a definitive root cause or verify which connector serves a public hostname.
+
+The latest 120 samples per service and up to 200 incidents are kept in memory. History resets on restart. Unknown status never resolves an open incident. The current monitor reads local containers, not Swarm desired replica counts.

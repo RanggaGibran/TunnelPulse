@@ -22,9 +22,12 @@ func env(key, fallback string) string {
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	var mu sync.RWMutex
+	configs, err := monitor.LoadServices(env("SERVICES_FILE", ""))
+ if err != nil {log.Fatalf("Load services: %v", err)}
+ history := monitor.NewHistory()
+ var mu sync.RWMutex
 	var collection sync.Mutex
-	snapshot := monitor.Snapshot{Docker: monitor.Source{Status: "unknown"}, Tunnel: monitor.Source{Status: "unknown"}}
+	snapshot := monitor.Snapshot{Services: []monitor.Service{}, Incidents: []monitor.Incident{},Docker: monitor.Source{Status: "unknown"}, Tunnel: monitor.Source{Status: "unknown"}}
 	collect := func() {
 		if !collection.TryLock() {
 			return
@@ -42,6 +45,8 @@ func main() {
 			next.Tunnel = monitor.Tunnel(ctx, env("TUNNEL_READY_URL", "http://127.0.0.1:20241/ready"))
 		}()
 		wg.Wait()
+ next.Services = monitor.CheckServices(ctx, configs, next.Docker, next.Tunnel)
+ next.Incidents = history.Record(next.Services)
 		mu.Lock()
 		snapshot = next
 		mu.Unlock()

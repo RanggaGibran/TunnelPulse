@@ -28,7 +28,9 @@ type Source struct {
 	Connections int         `json:"connections,omitempty"`
 }
 type Snapshot struct {
-	Docker Source `json:"docker"`
+	Services []Service `json:"services"`
+ Incidents []Incident `json:"incidents"`
+ Docker Source `json:"docker"`
 	Tunnel Source `json:"tunnel"`
 }
 

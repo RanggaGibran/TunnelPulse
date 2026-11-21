@@ -1,0 +1,8 @@
+[
+  {
+    "id": "dashboard",
+    "name": "TunnelPulse",
+    "originUrl": "http://127.0.0.1:8088/healthz",
+    "container": "tunnelpulse-tunnelpulse-1"
+  }
+]
