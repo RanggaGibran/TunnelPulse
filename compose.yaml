@@ -1,0 +1,15 @@
+services:
+  tunnelpulse:
+    build: .
+    network_mode: host
+    environment:
+      LISTEN_ADDR: 127.0.0.1:8088
+      TUNNEL_READY_URL: http://127.0.0.1:20241/ready
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
